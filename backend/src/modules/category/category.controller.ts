@@ -28,6 +28,20 @@ class CategoryController {
       201,
     );
   });
+
+  public updateCategory = catchAsync(async (req: Request, res: Response) => {
+    const service = new CategoryService();
+    const result = await service.updateCategory(
+      req.params.id as string,
+      req.body,
+    );
+    return ResponseUtil.success(
+      res,
+      result,
+      "Category updated successfully",
+      200,
+    );
+  });
 }
 
 export default CategoryController;
