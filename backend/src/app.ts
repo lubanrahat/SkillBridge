@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { env } from "./config/env";
 import registerHealthRoutes from "./modules/health/health.routes";
 import { errorHandler } from "./middlewares/errorHandler";
+import registerAuthRoutes from "./modules/auth/auth.routes";
 
 function createApp(): Application {
   const app: Application = express();
@@ -21,6 +22,7 @@ function createApp(): Application {
   app.use(express.urlencoded({ extended: true }));
 
   app.use(registerHealthRoutes());
+  app.use("/api/v1/auth", registerAuthRoutes());
 
   app.use((req, res) => {
     res.status(404).json({
