@@ -3,8 +3,17 @@ import { prisma } from "../../lib/prisma";
 import type { CreateCategoryInput } from "../../schemas/category.schema";
 
 class CategoryService {
-    public createCategory = async (payload: CreateCategoryInput) => {
-   
+  public getAllCategories = async () => {
+    const categories = await prisma.category.findMany({
+      orderBy: {
+        name: "asc",
+      },
+    });
+
+    return categories;
+  };
+
+  public createCategory = async (payload: CreateCategoryInput) => {
     const existing = await prisma.category.findUnique({
       where: { name: payload.name },
     });

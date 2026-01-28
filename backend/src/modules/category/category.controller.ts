@@ -6,6 +6,18 @@ import { ResponseUtil } from "../../utils/response.util";
 import CategoryService from "./category.service";
 
 class CategoryController {
+
+  public getAllCategories = catchAsync(async (req: Request, res: Response) => {
+    const service = new CategoryService();
+    const result = await service.getAllCategories();
+    return ResponseUtil.success(
+      res,
+      result,
+      "Categories fetched successfully",
+      200,
+    );
+  });
+
   public createCategory = catchAsync(async (req: Request, res: Response) => {
     const service = new CategoryService();
     const result = await service.createCategory(req.body);
