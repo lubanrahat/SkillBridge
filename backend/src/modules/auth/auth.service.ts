@@ -6,6 +6,7 @@ import type {
 } from "../../schemas/auth.schema";
 import bcrypt from "bcryptjs";
 import { signToken } from "../../utils/jwt.util";
+import type { JwtPayload } from "jsonwebtoken";
 
 class AuthService {
   public register = async (paylod: CreateUserInput) => {
@@ -64,6 +65,29 @@ class AuthService {
       user: safeUser,
       token,
     };
+  };
+
+  public getProfile = async (user: JwtPayload) => {
+    const profile = await prisma.user.findUnique({
+      where: {
+        id: user.userId,
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        tutorProfile: true,
+      },
+    });
+
+    if (!profile) {
+      throw new AppError(404, "User not found", "NOT_FOUND");
+    }
+
+    return profile;
   };
 }
 

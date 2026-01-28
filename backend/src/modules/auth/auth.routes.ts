@@ -1,9 +1,12 @@
 import express, { type Router } from "express";
 import AuthController from "./auth.controller";
+import { authenticate } from "../../middlewares/auth.middleware";
 
 export default function registerAuthRoutes(): Router {
   const router = express.Router();
   const controller = new AuthController();
+
+  router.get("/me",authenticate, controller.getProfile.bind(controller));
 
   router.post("/register", controller.register.bind(controller));
   router.post("/login", controller.login.bind(controller));

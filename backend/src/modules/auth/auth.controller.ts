@@ -25,6 +25,12 @@ class AuthController {
     res.cookie("token", result.token, cookieOptions);
     return ResponseUtil.success(res, result, "User logged in successfully", 200);
   });
+
+  public getProfile = catchAsync(async (req: Request, res: Response) => {
+    const service = new AuthService();
+    const result = await service.getProfile(req.user);
+    return ResponseUtil.success(res, result, "User profile fetched successfully", 200);
+  });
 }
 
 export default AuthController;
