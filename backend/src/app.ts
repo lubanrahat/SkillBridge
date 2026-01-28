@@ -5,6 +5,7 @@ import { env } from "./config/env";
 import registerHealthRoutes from "./modules/health/health.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import registerAuthRoutes from "./modules/auth/auth.routes";
+import registerTutorRoutes from "./modules/tutor/tutor.routes";
 
 function createApp(): Application {
   const app: Application = express();
@@ -23,6 +24,7 @@ function createApp(): Application {
 
   app.use(registerHealthRoutes());
   app.use("/api/v1/auth", registerAuthRoutes());
+  app.use("/api/v1/tutors", registerTutorRoutes());
 
   app.use((req, res) => {
     res.status(404).json({

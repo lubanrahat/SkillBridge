@@ -54,3 +54,6 @@ export const validateBody = (schema: ZodTypeAny) => {
     }
   };
 };
+
+export const validate = validateBody;
+export const zodValidation = validateBody;
