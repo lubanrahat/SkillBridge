@@ -156,6 +156,52 @@ class TutorService {
 
     return tutorsWithRatings;
   };
+
+  public getTutorById = async (tutorId: string) => {
+    const tutor = await prisma.tutorProfile.findUnique({
+      where: { userId: tutorId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        reviews: {
+          include: {
+            student: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        categories: true,
+      },
+    });
+
+    if (!tutor) {
+      throw new AppError(404, "Tutor not found", "NOT_FOUND");
+    }
+
+    const avgRating =
+      tutor.reviews.length > 0
+        ? tutor.reviews.reduce((sum, r) => sum + r.rating, 0) /
+          tutor.reviews.length
+        : 0;
+
+    return {
+      ...tutor,
+      averageRating: Math.round(avgRating * 10) / 10,
+      totalReviews: tutor.reviews.length,
+    };
+  };
+
 }
 
 export default TutorService;

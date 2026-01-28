@@ -38,6 +38,12 @@ class TutorController {
       200,
     );
   });
+
+  public getTutorById = catchAsync(async (req: Request, res: Response) => {
+    const service = new TutorService();
+    const result = await service.getTutorById(req.params.id as string);
+    return ResponseUtil.success(res, result, "Tutor fetched successfully", 200);
+  });
   
 }
 
