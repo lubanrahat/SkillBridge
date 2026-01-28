@@ -16,6 +16,29 @@ class TutorController {
       );
     },
   );
+
+  public getAllTutors = catchAsync(async (req: Request, res: Response) => {
+    const service = new TutorService();
+    const filters = {
+      subject: req.query.subject as string | undefined,
+      categoryId: req.query.categoryId as string | undefined,
+      minRate: req.query.minRate
+        ? parseFloat(req.query.minRate as string)
+        : undefined,
+      maxRate: req.query.maxRate
+        ? parseFloat(req.query.maxRate as string)
+        : undefined,
+      search: req.query.search as string | undefined,
+    };
+    const result = await service.getAllTutors(filters);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Tutors fetched successfully",
+      200,
+    );
+  });
+  
 }
 
 export default TutorController;

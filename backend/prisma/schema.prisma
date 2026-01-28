@@ -47,12 +47,16 @@ model TutorProfile {
   updatedAt    DateTime @updatedAt
 
   reviews Review[]
+  
+  categories Category[]
 }
 
 model Category {
-  id          String  @id @default(uuid())
-  name        String  @unique
+  id          String   @id @default(uuid())
+  name        String   @unique
   description String?
+  
+  tutors      TutorProfile[]
 }
 
 model Booking {
@@ -63,6 +67,7 @@ model Booking {
   tutor     User          @relation("TutorBookings", fields: [tutorId], references: [id])
   startTime DateTime
   endTime   DateTime
+  totalPrice Float    @default(0)
   status    BookingStatus @default(PENDING)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt

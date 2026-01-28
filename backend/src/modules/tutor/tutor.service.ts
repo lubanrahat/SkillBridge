@@ -5,12 +5,10 @@ import type { CreateTutorProfileInput } from "../../schemas/tutor.schema";
 import { Role } from "../../generated/prisma/enums";
 
 class TutorService {
-
   public createOrUpdateProfile = async (
     payload: CreateTutorProfileInput,
     user: JwtPayload,
   ) => {
-    
     const userRecord = await prisma.user.findUnique({
       where: { id: user.userId },
     });
@@ -77,6 +75,86 @@ class TutorService {
     });
 
     return profile;
+  };
+
+  public getAllTutors = async (filters?: {
+    subject?: string;
+    categoryId?: string;
+    minRate?: number;
+    maxRate?: number;
+    search?: string;
+  }) => {
+    const where: any = {};
+
+    if (filters?.subject) {
+      where.subjects = {
+        has: filters.subject,
+      };
+    }
+
+    if (filters?.minRate || filters?.maxRate) {
+      where.hourlyRate = {};
+      if (filters.minRate) {
+        where.hourlyRate.gte = filters.minRate;
+      }
+      if (filters.maxRate) {
+        where.hourlyRate.lte = filters.maxRate;
+      }
+    }
+
+    if (filters?.search) {
+      where.OR = [
+        { user: { name: { contains: filters.search, mode: "insensitive" } } },
+        { bio: { contains: filters.search, mode: "insensitive" } },
+      ];
+    }
+
+    if (filters?.categoryId) {
+      where.categories = {
+        some: {
+          id: filters.categoryId,
+        },
+      };
+    }
+
+    const tutors = await prisma.tutorProfile.findMany({
+      where,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        reviews: {
+          select: {
+            rating: true,
+          },
+        },
+        categories: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    const tutorsWithRatings = tutors.map((tutor) => {
+      const avgRating =
+        tutor.reviews.length > 0
+          ? tutor.reviews.reduce((sum, r) => sum + r.rating, 0) /
+            tutor.reviews.length
+          : 0;
+
+      return {
+        ...tutor,
+        averageRating: Math.round(avgRating * 10) / 10,
+        totalReviews: tutor.reviews.length,
+        reviews: undefined,
+      };
+    });
+
+    return tutorsWithRatings;
   };
 }
 
