@@ -1,7 +1,10 @@
 import type { JwtPayload } from "jsonwebtoken";
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/AppError";
-import type { CreateTutorProfileInput } from "../../schemas/tutor.schema";
+import type {
+  CreateTutorProfileInput,
+  UpdateAvailabilityInput,
+} from "../../schemas/tutor.schema";
 import { Role } from "../../generated/prisma/enums";
 
 class TutorService {
@@ -202,6 +205,34 @@ class TutorService {
     };
   };
 
+  public updateAvailability = async (
+    payload: UpdateAvailabilityInput,
+    user: JwtPayload,
+  ) => {
+    const profile = await prisma.tutorProfile.findUnique({
+      where: { userId: user.userId },
+    });
+
+    if (!profile) {
+      throw new AppError(404, "Tutor profile not found", "NOT_FOUND");
+    }
+
+    const updated = await prisma.tutorProfile.update({
+      where: { userId: user.userId },
+      data: { availability: payload.availability },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return updated;
+  };
 }
 
 export default TutorService;

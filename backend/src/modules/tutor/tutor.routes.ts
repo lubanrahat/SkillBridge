@@ -2,7 +2,10 @@ import { Router } from "express";
 import TutorController from "./tutor.controller";
 import { isAuthenticated, authorize } from "../../middlewares/auth.middleware";
 import { zodValidation } from "../../middlewares/zodValidation";
-import { createTutorProfileSchema } from "../../schemas/tutor.schema";
+import {
+  createTutorProfileSchema,
+  updateAvailabilitySchema,
+} from "../../schemas/tutor.schema";
 
 function registerTutorRoutes(): Router {
   const router = Router();
@@ -14,6 +17,14 @@ function registerTutorRoutes(): Router {
     authorize("TUTOR"),
     zodValidation(createTutorProfileSchema),
     controller.createOrUpdateProfile,
+  );
+
+  router.put(
+    "/availability",
+    isAuthenticated,
+    authorize("TUTOR"),
+    zodValidation(updateAvailabilitySchema),
+    controller.updateAvailability,
   );
 
   return router;

@@ -44,6 +44,19 @@ class TutorController {
     const result = await service.getTutorById(req.params.id as string);
     return ResponseUtil.success(res, result, "Tutor fetched successfully", 200);
   });
+
+  public updateAvailability = catchAsync(
+    async (req: Request, res: Response) => {
+      const service = new TutorService();
+      const result = await service.updateAvailability(req.body, req.user);
+      return ResponseUtil.success(
+        res,
+        result,
+        "Availability updated successfully",
+        200,
+      );
+    },
+  );
   
 }
 
