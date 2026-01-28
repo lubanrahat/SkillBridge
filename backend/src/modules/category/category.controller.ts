@@ -42,6 +42,18 @@ class CategoryController {
       200,
     );
   });
+
+  public deleteCategory = catchAsync(async (req: Request, res: Response) => {
+    const service = new CategoryService();
+    const result = await service.deleteCategory(req.params.id as string);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Category deleted successfully",
+      200,
+    );
+  });
+  
 }
 
 export default CategoryController;
