@@ -7,6 +7,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import registerAuthRoutes from "./modules/auth/auth.routes";
 import registerTutorRoutes from "./modules/tutor/tutor.routes";
 import registerCategoryRoutes from "./modules/category/category.routes";
+import registerBookingRoutes from "./modules/booking/booking.routes";
 
 function createApp(): Application {
   const app: Application = express();
@@ -26,6 +27,7 @@ function createApp(): Application {
   app.use(registerHealthRoutes());
   app.use("/api/v1/auth", registerAuthRoutes());
   app.use("/api/v1/tutors", registerTutorRoutes());
+  app.use("/api/v1/bookings", registerBookingRoutes());
   app.use("/api/v1/categories", registerCategoryRoutes());
 
   app.use((req, res) => {
