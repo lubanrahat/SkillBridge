@@ -17,6 +17,7 @@ function registerBookingRoutes(): Router {
   );
 
   router.get("/", isAuthenticated, controller.getUserBookings);
+  router.get("/:id", isAuthenticated, controller.getBookingById);
 
   return router;
 }

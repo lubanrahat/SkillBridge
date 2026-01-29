@@ -135,6 +135,39 @@ class BookingService {
 
     return bookings;
   };
+
+  public getBookingById = async (bookingId: string, user: JwtPayload) => {
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        tutor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            tutorProfile: true,
+          },
+        },
+      },
+    });
+
+    if (!booking) {
+      throw new AppError(404, "Booking not found", "NOT_FOUND");
+    }
+
+    if (booking.studentId !== user.userId && booking.tutorId !== user.userId) {
+      throw new AppError(403, "Access denied", "FORBIDDEN");
+    }
+
+    return booking;
+  };
 }
 
 export default BookingService;
