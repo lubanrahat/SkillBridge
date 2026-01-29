@@ -2,7 +2,10 @@ import { Router } from "express";
 import BookingController from "./booking.controller";
 import { isAuthenticated, authorize } from "../../middlewares/auth.middleware";
 import { zodValidation } from "../../middlewares/zodValidation";
-import { createBookingSchema } from "../../schemas/booking.schema";
+import {
+  createBookingSchema,
+  updateBookingStatusSchema,
+} from "../../schemas/booking.schema";
 
 function registerBookingRoutes(): Router {
   const router = Router();
@@ -18,6 +21,13 @@ function registerBookingRoutes(): Router {
 
   router.get("/", isAuthenticated, controller.getUserBookings);
   router.get("/:id", isAuthenticated, controller.getBookingById);
+
+  router.patch(
+    "/:id",
+    isAuthenticated,
+    zodValidation(updateBookingStatusSchema),
+    controller.updateBookingStatus,
+  );
 
   return router;
 }

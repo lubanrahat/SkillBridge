@@ -26,7 +26,7 @@ class BookingController {
     );
   });
 
-   public getBookingById = catchAsync(async (req: Request, res: Response) => {
+  public getBookingById = catchAsync(async (req: Request, res: Response) => {
     const service = new BookingService();
     const result = await service.getBookingById(
       req.params.id as string,
@@ -40,6 +40,22 @@ class BookingController {
     );
   });
 
+  public updateBookingStatus = catchAsync(
+    async (req: Request, res: Response) => {
+      const service = new BookingService();
+      const result = await service.updateBookingStatus(
+        req.params.id as string,
+        req.body,
+        req.user,
+      );
+      return ResponseUtil.success(
+        res,
+        result,
+        "Booking updated successfully",
+        200,
+      );
+    },
+  );
 }
 
 export default BookingController;
