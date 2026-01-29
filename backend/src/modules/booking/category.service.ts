@@ -5,8 +5,7 @@ import { AppError } from "../../errors/AppError";
 import { BookingStatus } from "../../generated/prisma/enums";
 
 class BookingService {
-
-    public createBooking = async (
+  public createBooking = async (
     payload: CreateBookingInput,
     user: JwtPayload,
   ) => {
@@ -74,7 +73,7 @@ class BookingService {
         startTime,
         endTime,
         totalPrice,
-        status: BookingStatus.CONFIRMED, 
+        status: BookingStatus.CONFIRMED,
       },
       include: {
         student: {
@@ -96,6 +95,45 @@ class BookingService {
     });
 
     return booking;
+  };
+
+  public getUserBookings = async (user: JwtPayload) => {
+    const userRecord = await prisma.user.findUnique({
+      where: { id: user.userId },
+    });
+
+    if (!userRecord) {
+      throw new AppError(404, "User not found", "NOT_FOUND");
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where:
+        userRecord.role === "STUDENT"
+          ? { studentId: user.userId }
+          : { tutorId: user.userId },
+      include: {
+        student: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        tutor: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            tutorProfile: true,
+          },
+        },
+      },
+      orderBy: {
+        startTime: "desc",
+      },
+    });
+
+    return bookings;
   };
 }
 

@@ -14,6 +14,17 @@ class BookingController {
       201,
     );
   });
+
+  public getUserBookings = catchAsync(async (req: Request, res: Response) => {
+    const service = new BookingService();
+    const result = await service.getUserBookings(req.user);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Bookings fetched successfully",
+      200,
+    );
+  });
 }
 
 export default BookingController;
