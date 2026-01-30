@@ -66,7 +66,7 @@ class CategoryService {
     return category;
   };
 
-   public deleteCategory = async (categoryId: string) => {
+  public deleteCategory = async (categoryId: string) => {
     const existing = await prisma.category.findUnique({
       where: { id: categoryId },
     });
@@ -81,7 +81,6 @@ class CategoryService {
 
     return { message: "Category deleted successfully" };
   };
-  
 }
 
 export default CategoryService;

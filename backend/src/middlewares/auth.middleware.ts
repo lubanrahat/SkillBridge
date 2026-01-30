@@ -47,4 +47,5 @@ export const authorize = (...roles: Role[]) => {
   };
 };
 
+// Export alias for consistency
 export const isAuthenticated = authenticate;

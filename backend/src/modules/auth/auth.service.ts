@@ -3,6 +3,7 @@ import { prisma } from "../../lib/prisma";
 import type {
   CreateUserInput,
   LoginUserInput,
+  UpdateUserInput,
 } from "../../schemas/auth.schema";
 import bcrypt from "bcryptjs";
 import { signToken } from "../../utils/jwt.util";
@@ -88,6 +89,32 @@ class AuthService {
     }
 
     return profile;
+  };
+
+  public updateProfile = async (userId: string, payload: UpdateUserInput) => {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new AppError(404, "User not found", "NOT_FOUND");
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: payload,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        tutorProfile: true,
+      },
+    });
+
+    return updatedUser;
   };
 }
 

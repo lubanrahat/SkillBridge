@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/asyncHandler";
+import BookingService from "./booking.service";
 import { ResponseUtil } from "../../utils/response.util";
-import BookingService from "./category.service";
 
 class BookingController {
   public createBooking = catchAsync(async (req: Request, res: Response) => {

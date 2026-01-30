@@ -11,6 +11,11 @@ function registerTutorRoutes(): Router {
   const router = Router();
   const controller = new TutorController();
 
+  // Public routes
+  router.get("/", controller.getAllTutors);
+  router.get("/:id", controller.getTutorById);
+
+  // Protected tutor routes
   router.put(
     "/profile",
     isAuthenticated,

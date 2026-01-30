@@ -11,6 +11,7 @@ function registerBookingRoutes(): Router {
   const router = Router();
   const controller = new BookingController();
 
+  // All routes require authentication
   router.post(
     "/",
     isAuthenticated,
@@ -20,6 +21,7 @@ function registerBookingRoutes(): Router {
   );
 
   router.get("/", isAuthenticated, controller.getUserBookings);
+
   router.get("/:id", isAuthenticated, controller.getBookingById);
 
   router.patch(

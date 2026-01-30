@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { catchAsync } from "../../utils/asyncHandler";
-import { ResponseUtil } from "../../utils/response.util";
 import TutorService from "./tutor.service";
+import { ResponseUtil } from "../../utils/response.util";
 
 class TutorController {
   public createOrUpdateProfile = catchAsync(
@@ -57,7 +57,6 @@ class TutorController {
       );
     },
   );
-  
 }
 
 export default TutorController;

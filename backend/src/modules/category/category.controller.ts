@@ -1,12 +1,9 @@
 import type { Request, Response } from "express";
-import { AppError } from "../../errors/AppError";
-import { prisma } from "../../lib/prisma";
 import { catchAsync } from "../../utils/asyncHandler";
-import { ResponseUtil } from "../../utils/response.util";
 import CategoryService from "./category.service";
+import { ResponseUtil } from "../../utils/response.util";
 
 class CategoryController {
-
   public getAllCategories = catchAsync(async (req: Request, res: Response) => {
     const service = new CategoryService();
     const result = await service.getAllCategories();
@@ -53,7 +50,6 @@ class CategoryController {
       200,
     );
   });
-  
 }
 
 export default CategoryController;

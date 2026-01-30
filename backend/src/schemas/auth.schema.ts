@@ -16,5 +16,13 @@ export const loginUserSchema = z.object({
   }),
 });
 
+export const updateUserSchema = z.object({
+  body: z.object({
+    email: z.string().email("Invalid email format").optional(),
+    name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  }),
+});
+
 export type CreateUserInput = z.infer<typeof createUserSchema>["body"];
 export type LoginUserInput = z.infer<typeof loginUserSchema>["body"];
+export type UpdateUserInput = z.infer<typeof updateUserSchema>["body"];

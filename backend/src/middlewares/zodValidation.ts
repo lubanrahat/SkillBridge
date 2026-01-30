@@ -55,5 +55,6 @@ export const validateBody = (schema: ZodTypeAny) => {
   };
 };
 
+// Export aliases for consistency
 export const validate = validateBody;
 export const zodValidation = validateBody;

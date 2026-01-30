@@ -1,25 +1,41 @@
-import type { JwtPayload } from "jsonwebtoken";
+import { AppError } from "../../errors/AppError";
+import { prisma } from "../../lib/prisma";
 import type {
   CreateBookingInput,
   UpdateBookingStatusInput,
 } from "../../schemas/booking.schema";
-import { prisma } from "../../lib/prisma";
-import { AppError } from "../../errors/AppError";
-import { BookingStatus } from "../../generated/prisma/enums";
+import type { JwtPayload } from "jsonwebtoken";
+import { BookingStatus } from "../../generated/prisma/client";
 
 class BookingService {
   public createBooking = async (
     payload: CreateBookingInput,
     user: JwtPayload,
   ) => {
-    const tutor = await prisma.user.findUnique({
+    let tutor = await prisma.user.findUnique({
       where: { id: payload.tutorId },
       include: { tutorProfile: true },
     });
 
+    if (!tutor) {
+      const tutorProfile = await prisma.tutorProfile.findUnique({
+        where: { id: payload.tutorId },
+        select: { userId: true },
+      });
+
+      if (tutorProfile) {
+        tutor = await prisma.user.findUnique({
+          where: { id: tutorProfile.userId },
+          include: { tutorProfile: true },
+        });
+      }
+    }
+
     if (!tutor || !tutor.tutorProfile) {
       throw new AppError(404, "Tutor not found", "NOT_FOUND");
     }
+
+    const tutorUserId = tutor.id;
 
     const startTime = new Date(payload.startTime);
     const endTime = new Date(payload.endTime);
@@ -34,7 +50,7 @@ class BookingService {
 
     const conflictingBooking = await prisma.booking.findFirst({
       where: {
-        tutorId: payload.tutorId,
+        tutorId: tutorUserId,
         status: {
           in: [BookingStatus.PENDING, BookingStatus.CONFIRMED],
         },
@@ -72,11 +88,11 @@ class BookingService {
     const booking = await prisma.booking.create({
       data: {
         studentId: user.userId,
-        tutorId: payload.tutorId,
+        tutorId: tutorUserId,
         startTime,
         endTime,
         totalPrice,
-        status: BookingStatus.CONFIRMED,
+        status: BookingStatus.CONFIRMED, 
       },
       include: {
         student: {
@@ -185,10 +201,12 @@ class BookingService {
       throw new AppError(404, "Booking not found", "NOT_FOUND");
     }
 
+    // Verify user is part of this booking
     if (booking.studentId !== user.userId && booking.tutorId !== user.userId) {
       throw new AppError(403, "Access denied", "FORBIDDEN");
     }
 
+    // Update status
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: { status: payload.status as BookingStatus },

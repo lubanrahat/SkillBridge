@@ -1,17 +1,17 @@
-import type { JwtPayload } from "jsonwebtoken";
-import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/AppError";
+import { prisma } from "../../lib/prisma";
 import type {
   CreateTutorProfileInput,
   UpdateAvailabilityInput,
 } from "../../schemas/tutor.schema";
-import { Role } from "../../generated/prisma/enums";
+import type { JwtPayload } from "jsonwebtoken";
 
 class TutorService {
   public createOrUpdateProfile = async (
     payload: CreateTutorProfileInput,
     user: JwtPayload,
   ) => {
+    // Check if user is a tutor
     const userRecord = await prisma.user.findUnique({
       where: { id: user.userId },
     });
@@ -20,10 +20,11 @@ class TutorService {
       throw new AppError(404, "User not found", "NOT_FOUND");
     }
 
-    if (userRecord.role !== Role.TUTOR) {
+    if (userRecord.role !== "TUTOR") {
       throw new AppError(403, "Only tutors can create profiles", "FORBIDDEN");
     }
 
+    // Check if profile already exists
     const existingProfile = await prisma.tutorProfile.findUnique({
       where: { userId: user.userId },
     });
@@ -31,6 +32,7 @@ class TutorService {
     const { categoryIds, ...rest } = payload;
 
     if (existingProfile) {
+      // Update existing profile
       const updated = await prisma.tutorProfile.update({
         where: { userId: user.userId },
         data: {
@@ -55,6 +57,7 @@ class TutorService {
       return updated;
     }
 
+    // Create new profile
     const profile = await prisma.tutorProfile.create({
       data: {
         userId: user.userId,
@@ -142,6 +145,7 @@ class TutorService {
       },
     });
 
+    // Calculate average rating for each tutor
     const tutorsWithRatings = tutors.map((tutor) => {
       const avgRating =
         tutor.reviews.length > 0
@@ -153,7 +157,7 @@ class TutorService {
         ...tutor,
         averageRating: Math.round(avgRating * 10) / 10,
         totalReviews: tutor.reviews.length,
-        reviews: undefined,
+        reviews: undefined, // Remove individual reviews from list view
       };
     });
 
@@ -161,37 +165,47 @@ class TutorService {
   };
 
   public getTutorById = async (tutorId: string) => {
-    const tutor = await prisma.tutorProfile.findUnique({
-      where: { userId: tutorId },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+    const include = {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
         },
-        reviews: {
-          include: {
-            student: {
-              select: {
-                id: true,
-                name: true,
-              },
+      },
+      reviews: {
+        include: {
+          student: {
+            select: {
+              id: true,
+              name: true,
             },
           },
-          orderBy: {
-            createdAt: "desc",
-          },
         },
-        categories: true,
+        orderBy: {
+          createdAt: "desc",
+        },
       },
+      categories: true,
+    } as const;
+
+    const tutorByProfileId = await prisma.tutorProfile.findUnique({
+      where: { id: tutorId },
+      include,
     });
+
+    const tutor =
+      tutorByProfileId ??
+      (await prisma.tutorProfile.findUnique({
+        where: { userId: tutorId },
+        include,
+      }));
 
     if (!tutor) {
       throw new AppError(404, "Tutor not found", "NOT_FOUND");
     }
 
+    // Calculate average rating
     const avgRating =
       tutor.reviews.length > 0
         ? tutor.reviews.reduce((sum, r) => sum + r.rating, 0) /

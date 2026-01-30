@@ -6,9 +6,10 @@ import registerHealthRoutes from "./modules/health/health.routes";
 import { errorHandler } from "./middlewares/errorHandler";
 import registerAuthRoutes from "./modules/auth/auth.routes";
 import registerTutorRoutes from "./modules/tutor/tutor.routes";
-import registerCategoryRoutes from "./modules/category/category.routes";
 import registerBookingRoutes from "./modules/booking/booking.routes";
 import registerReviewRoutes from "./modules/review/review.routes";
+import registerCategoryRoutes from "./modules/category/category.routes";
+import registerAdminRoutes from "./modules/admin/admin.routes";
 
 function createApp(): Application {
   const app: Application = express();
@@ -25,12 +26,14 @@ function createApp(): Application {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
+  // Register routes
   app.use(registerHealthRoutes());
   app.use("/api/v1/auth", registerAuthRoutes());
   app.use("/api/v1/tutors", registerTutorRoutes());
   app.use("/api/v1/bookings", registerBookingRoutes());
   app.use("/api/v1/reviews", registerReviewRoutes());
   app.use("/api/v1/categories", registerCategoryRoutes());
+  app.use("/api/v1/admin", registerAdminRoutes());
 
   app.use((req, res) => {
     res.status(404).json({

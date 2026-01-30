@@ -7,11 +7,11 @@ class AuthController {
   public register = catchAsync(async (req: Request, res: Response) => {
     const service = new AuthService();
     const result = await service.register(req.body);
-    const cookieOptions = {
-      httpOnly: true,
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) 
-    };
-    res.cookie("token", result.token, cookieOptions);
+    // const cookieOptions = {
+    //   httpOnly: true,
+    //   expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    // };
+    // res.cookie("token", result.token, cookieOptions);
     return ResponseUtil.success(res, result, "User created successfully", 201);
   });
 
@@ -20,16 +20,37 @@ class AuthController {
     const result = await service.login(req.body);
     const cookieOptions = {
       httpOnly: true,
-      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) 
+      expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     };
     res.cookie("token", result.token, cookieOptions);
-    return ResponseUtil.success(res, result, "User logged in successfully", 200);
+    return ResponseUtil.success(
+      res,
+      result,
+      "User logged in successfully",
+      200,
+    );
   });
 
   public getProfile = catchAsync(async (req: Request, res: Response) => {
     const service = new AuthService();
     const result = await service.getProfile(req.user);
-    return ResponseUtil.success(res, result, "User profile fetched successfully", 200);
+    return ResponseUtil.success(
+      res,
+      result,
+      "User profile fetched successfully",
+      200,
+    );
+  });
+
+  public updateProfile = catchAsync(async (req: Request, res: Response) => {
+    const service = new AuthService();
+    const result = await service.updateProfile(req.user.userId, req.body);
+    return ResponseUtil.success(
+      res,
+      result,
+      "Profile updated successfully",
+      200,
+    );
   });
 }
 

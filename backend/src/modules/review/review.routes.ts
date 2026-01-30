@@ -16,6 +16,7 @@ function registerReviewRoutes(): Router {
     controller.createReview,
   );
 
+  // Get tutor reviews - public
   router.get("/tutor/:tutorId", controller.getTutorReviews);
 
   return router;
