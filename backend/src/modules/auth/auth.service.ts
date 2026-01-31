@@ -57,7 +57,7 @@ class AuthService {
     if (!isPasswordValid) {
       throw new AppError(401, "Invalid credentials", "INVALID_CREDENTIALS");
     }
-
+    console.log("user.id,user.role auth service: ->",user.id,user.role)
     const token = signToken({ userId: user.id, role: user.role });
 
     const { password, ...safeUser } = user;

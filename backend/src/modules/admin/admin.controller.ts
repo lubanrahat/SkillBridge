@@ -30,6 +30,12 @@ class AdminController {
     );
   });
 
+  public getUserById = catchAsync(async (req: Request, res: Response) => {
+    const service = new AdminService();
+    const result = await service.getUserById(req.params.id as string);
+    return ResponseUtil.success(res, result, "User fetched successfully", 200);
+  });
+
   public updateUserStatus = catchAsync(async (req: Request, res: Response) => {
     const service = new AdminService();
     const result = await service.updateUserStatus(

@@ -24,7 +24,7 @@ export const authenticate = (
 
     const payload = verifyToken(token);
 
-    console.log(payload);
+    console.log("payload auth middleware: ->",payload)
 
     req.user = payload;
     next();
@@ -39,10 +39,13 @@ export const authorize = (...roles: Role[]) => {
       throw new AppError(401, "Unauthorized", "UNAUTHORIZED");
     }
 
+    console.log("req.user role auth middleware start: ->",req.user.role)
+
     if (!roles.includes(req.user.role)) {
       throw new AppError(403, "Forbidden", "FORBIDDEN");
     }
 
+    console.log("req.user role auth middleware end: ->",req.user.role)
     next();
   };
 };

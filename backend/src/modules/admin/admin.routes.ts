@@ -7,12 +7,19 @@ import { updateUserStatusSchema } from "../../schemas/admin.schema";
 function registerAdminRoutes(): Router {
   const router = Router();
   const controller = new AdminController();
-  
+
   router.get(
     "/users",
     isAuthenticated,
     authorize("ADMIN"),
     controller.getAllUsers,
+  );
+
+  router.get(
+    "/users/:id",
+    isAuthenticated,
+    authorize("ADMIN"),
+    controller.getUserById,
   );
 
   router.get(

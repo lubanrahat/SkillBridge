@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { AppError } from "../../errors/AppError";
+import { Role, UserStatus } from "../../generated/prisma/enums";
 
 class AdminService {
   public getAllUsers = async (filters?: { role?: string; search?: string }) => {
@@ -87,7 +88,7 @@ class AdminService {
     return bookings;
   };
 
-  public updateUserStatus = async (userId: string, status: string) => {
+  public updateUserStatus = async (userId: string, status: UserStatus) => {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -96,19 +97,60 @@ class AdminService {
       throw new AppError(404, "User not found", "NOT_FOUND");
     }
 
-    if (user.role === "ADMIN") {
+    console.log(user.role);
+
+    if (status !== UserStatus.ACTIVE && status !== UserStatus.BAN) {
+      throw new AppError(400, "Invalid status", "BAD_REQUEST");
+    }
+
+    if (user.role === Role.ADMIN) {
       throw new AppError(403, "Cannot modify admin users", "FORBIDDEN");
     }
 
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { status },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        status: true,
+      },
+    });
+
     return {
       message: `User status updated to ${status}`,
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-      },
+      user: updatedUser,
     };
+  };
+
+  public getUserById = async (userId: string) => {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        status: true,
+        createdAt: true,
+        tutorProfile: {
+          select: {
+            id: true,
+            bio: true,
+            hourlyRate: true,
+            subjects: true,
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError(404, "User not found", "NOT_FOUND");
+    }
+
+    return user;
   };
 
   public getStatistics = async () => {

@@ -30,3 +30,6 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+
+
+// bunx prisma db seed
